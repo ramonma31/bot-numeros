@@ -796,7 +796,4 @@ BRANCO = {self.cont_white}
 token = input('DIGITE SEU TOKEN DO BOT: ')
 chat_id = input('DIGITE SEU CHAT_ID: ')
 
-bot_blaze(token, chat_id) 
-
-## @imperio_sinais_gratis
-## 6011083439:AAHnLMBkhAy9RfHIla1WwxN6P6jtOrImKeI
+bot_blaze(token, chat_id)
