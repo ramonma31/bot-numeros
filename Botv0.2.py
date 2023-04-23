@@ -5,6 +5,8 @@ import json
 from datetime import datetime
 from pytz import timezone 
 from time import sleep  
+import sqlite3
+
 
 
 class bot_blaze():
@@ -39,6 +41,7 @@ CONFIGURANDO BOT DO TELEGRAM...
 MENSSAGEM DE CONFIGURAÇÃO ENVIADA COM SUCESSO!
         ''')
         sleep(3)
+        self.montaTabelas()
         print('''
 MAIS ALGUNS AJUSTES...
 CARREGANDO...
@@ -58,6 +61,7 @@ CARREGANDO...
                 self.ult_numero()
                 print(f'BLAZE GIROU: {self.ult_cor()}/{self.ult_numero()}')
                 self.cont_results_geral(self.ult_numero(), self.ult_cor())
+                self.add_results()
                 display = self.filter_display(self.minuto)
                 if display:
                     if self.control_estatistica == 0:
@@ -507,6 +511,7 @@ BRANCO = {self.cont_white}
                 except:
                     break
                 if self.momento == 'complete':
+                    self.add_results()
                     self.lista_append()
                     self.cont += 1
                     self.giro += 1
@@ -791,6 +796,43 @@ BRANCO = {self.cont_white}
         else:
             return False
 
+
+
+##  BANCO DE DADOS ##
+    def conect_bd(self):
+        self.conexao = sqlite3.connect('ia.bd')
+        self.cursor = self.conexao.cursor(); print('Banco de Dados conectado')
+    
+
+    def desconect_bd(self):
+        self.conexao.close(); print('Banco de Dados desconectado')
+
+
+    def montaTabelas(self):
+        self.conect_bd()
+        ## crianldo tabela ##
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS ia(
+                cod INTEGER PRIMARY KEY,
+                horario CHAR(10) NOT NULL,
+                numero INTEGER(5),
+                cor CHAR(10)
+
+            );
+        ''')
+        self.conexao.commit(); print('Banco de dados criado')
+        self.desconect_bd()
+
+
+    def add_results(self):
+        self.variaveis()
+        self.conect_bd()
+
+        self.cursor.execute('''
+        INSERT INTO ia (horario, numero, cor) 
+        VALUES (?, ?, ?)''', (self.hora_string(), self.ult_numero(), self.ult_cor() ))
+        self.conexao.commit()
+        self.desconect_bd()
 
 
 token = input('DIGITE SEU TOKEN DO BOT: ')

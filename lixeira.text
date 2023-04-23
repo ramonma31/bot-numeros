@@ -1,0 +1,99 @@
+def conect_bd(self):
+        self.conexao = sqlite3.connect('clientes.bd')
+        self.cursor = self.conexao.cursor(); print('Banco de Dados conectado')
+    
+
+    def desconect_bd(self):
+        self.conexao.close(); print('Banco de Dados desconectado')
+
+
+    def montaTabelas(self):
+        self.conect_bd()
+        ## crianldo tabela ##
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS clientes(
+                cod INTEGER PRIMARY KEY,
+                nome_cliente CHAR(40) NOT NULL,
+                telefone INTEGER(20),
+                cidade CHAR(40)
+
+            );
+        ''')
+        self.conexao.commit(); print('Banco de dados criado')
+        self.desconect_bd()
+
+
+    def variaveis(self):
+        self.codigo = self.codigo_entry.get()
+        self.nome = self.nome_entry.get()
+        self.cidade = self.cidade_entry.get()
+        self.fone = self.fone_entry.get()
+
+
+    def add_cliente(self):
+        self.variaveis()
+        self.conect_bd()
+
+        self.cursor.execute('''
+        INSERT INTO clientes (nome_cliente, telefone, cidade) 
+        VALUES (?, ?, ?)''', (self.nome, self.fone, self.cidade ))
+        self.conexao.commit()
+        self.desconect_bd()
+        self.select_lista()
+        self.limpar()
+
+    
+    def select_lista(self):
+        self.lista_cli.delete(*self.lista_cli.get_children())
+        self.conect_bd()
+        lista = self.cursor.execute('''SELECT cod, nome_cliente, telefone, cidade FROM clientes ORDER BY nome_cliente ASC;''')
+        for i in lista:
+            self.lista_cli.insert('', END, values=i)
+        self.desconect_bd()
+
+
+    def Ondouble_click(self, event):
+        self.limpar()
+        self.lista_cli.selection()
+
+        for n in self.lista_cli.selection():
+            col1, col2, col3, col4 = self.lista_cli.item(n, 'values')
+            self.codigo_entry.insert(END, col1)
+            self.nome_entry.insert(END, col2)
+            self.fone_entry.insert(END, col3)
+            self.cidade_entry.insert(END, col4)
+
+
+    def deleta_cliente(self):
+        self.variaveis()
+        self.conect_bd()
+        self.cursor.execute('''DELETE FROM clientes WHERE cod = ? ''', (self.codigo))
+        self.conexao.commit()
+        self.desconect_bd()
+        self.limpar()
+        self.select_lista()
+
+
+    def alterar_cliente(self):
+        self.variaveis()
+        self.conect_bd()
+        self.cursor.execute('''UPDATE clientes SET nome_cliente = ?, telefone = ?, cidade = ? WHERE cod = ?''', (self.nome, self.fone, self.cidade, self.codigo))
+        self.conexao.commit()
+        self.desconect_bd()
+        self.select_lista()
+        self.limpar()
+
+
+    def busca_cliente(self):
+        self.conect_bd()
+        self.lista_cli.delete(*self.lista_cli.get_children())
+        self.nome_entry.insert(END, '%')
+        nome = self.nome_entry.get()
+        self.cursor.execute('''
+        SELECT cod, nome_cliente, telefone, cidade FROM clientes WHERE nome_cliente LIKE "%s" ORDER BY nome_cliente ASC
+        ''' % nome)
+        buscaNome_cliente = self.cursor.fetchall()
+        for i in buscaNome_cliente:
+            self.lista_cli.insert('', END, values=i)
+        self.limpar()
+        self.desconect_bd()
