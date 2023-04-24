@@ -7,8 +7,6 @@ from pytz import timezone
 from time import sleep  
 import sqlite3
 
-
-
 class bot_blaze():
     ## CLASSE CONSTRUTORA ##
     def __init__(self,api,canal):
@@ -536,6 +534,7 @@ BRANCO = {self.cont_white}
                                 self.total_rounds += 1
                                 self.delete_message()
                                 self.filter_sinal_cor(numero)
+                                continue
                             else:
                                 self.delete_message()
                                 self.sinal_cancelado()
